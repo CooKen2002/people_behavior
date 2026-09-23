@@ -1,13 +1,13 @@
-Behavior of human modules
+# Human Behavior Modules
 
-Install venv + depencies (current version: Python 3.10.11)
-``bash
-    py -m .venv venv
+Install venv + dependencies (current version: Python 3.10.11)
+```bash
+    py -m venv .venv
     pip install -r requirements.txt
-``
+```
 
 Repo Structure
-``
+```bash
     human-behavior/
     │
     ├── .github/                  # CI/CD workflows, issue templates
@@ -79,4 +79,4 @@ Repo Structure
     ├── LICENSE                   # Giấy phép mã nguồn mở (MIT, Apache...)
     ├── README.md                 # Giới thiệu tổng quan dự án, hướng dẫn cài đặt
     └── requirements.txt          # Danh sách thư viện Python (ultralytics, opencv, mediapipe...)
-``
+```
