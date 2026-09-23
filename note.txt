@@ -1,0 +1,71 @@
+human-behavior-analysis/
+│
+├── .github/                  # CI/CD workflows, issue templates
+│   └── workflows/
+│       ├── ci.yml            # Test tự động (pytest)
+│       └── lint.yml          # Kiểm tra định dạng code (flake8, black)
+│
+├── configs/                  # File cấu hình dạng YAML cho từng domain/model
+│   ├── base.yaml             # Cấu hình chung (device, logging, paths)
+│   ├── exam_cheating.yaml    # Tham số riêng cho bài toán phòng thi
+│   ├── hand_washing.yaml     # Tham số riêng cho bài toán rửa tay
+│   └── staff_absence.yaml    # Tham số riêng cho bài toán nhân viên vắng mặt
+│
+├── data/                     # Thư mục lưu dữ liệu (thường ignore qua .gitignore)
+│   ├── raw/                  # Video hoặc frame thô ban đầu
+│   ├── processed/            # Dữ liệu đã chuẩn hóa / cắt đoạn
+│   └── annotations/          # File nhãn (JSON, CSV, YOLO format txt)
+│
+├── docs/                     # Tài liệu hướng dẫn, sơ đồ kiến trúc hệ thống
+│   └── architecture.md
+│
+├── models/                   # Trọng số mô hình đã train (weights)
+│   ├── yolov8n.pt
+│   └── best_exam_model.pth
+│
+├── notebooks/                # Jupyter Notebooks phục vụ EDA và thử nghiệm nhanh
+│   ├── 01_explore_exam_data.ipynb
+│   └── 02_test_hand_washing_pipeline.ipynb
+│
+├── src/                      # Source code chính của dự án
+│   ├── __init__.py
+│   │
+│   ├── core/                 # Các module nền tảng dùng chung (Shared Core)
+│   │   ├── __init__.py
+│   │   ├── video_loader.py   # Xử lý đọc/ghi stream video (OpenCV wrapper)
+│   │   ├── base_processor.py # Lớp cơ sở (Base class) cho các pipeline
+│   │   └── visualizer.py     # Hàm vẽ bounding box, skeleton, text lên frame
+│   │
+│   ├── modules/              # Các Domain cụ thể (Mỗi bài toán là một gói module riêng)
+│   │   ├── __init__.py
+│   │   │
+│   │   ├── exam_cheating/    # Domain 1: Phát hiện gian lận phòng thi
+│   │   │   ├── __init__.py
+│   │   │   ├── detector.py   # Phát hiện vật thể (điện thoại, tài liệu)
+│   │   │   ├── head_pose.py  # Đo góc quay đầu / hướng nhìn (Gaze/Head tracking)
+│   │   │   └── logic.py      # Quy tắc cảnh báo (ví dụ: quay đầu > 5s)
+│   │   │
+│   │   ├── hand_washing/     # Domain 2: Kiểm tra quy trình rửa tay y tế/thực phẩm
+│   │   │   ├── __init__.py
+│   │   │   ├── steps_classifier.py # Phân loại các bước rửa tay chuẩn (WHO steps)
+│   │   │   └── time_tracker.py     # Đếm thời gian thực hiện từng bước
+│   │   │
+│   │   └── staff_absence/    # Domain 3: Giám sát nhân viên vắng mặt / rời vị trí
+│   │       ├── __init__.py
+│   │       ├── tracker.py    # Định danh và theo dõi người (DeepSORT / ByteTrack)
+│   │       └── zone_checker.py # Kiểm tra xem người có nằm trong vùng làm việc không
+│   │
+│   └── utils/                # Các tiện ích hỗ trợ chung
+│       ├── __init__.py
+│       ├── logger.py         # Cấu hình logging hệ thống
+│       └── metrics.py        # Tính toán độ chính xác, FPS, v.v.
+│
+├── tests/                    # Unit tests bằng pytest cho từng module
+│   ├── test_video_loader.py
+│   └── test_exam_logic.py
+│
+├── .gitignore                # Các file/thư mục không đưa lên Git (vram, weights, data)
+├── Dockerfile                # Đóng gói môi trường chạy Docker
+├── LICENSE                   # Giấy phép mã nguồn mở (MIT, Apache...)
+├── README.md                 # Giới thiệu tổng quan dự án, hướng dẫn cài đặt
+└── requirements.txt          # Danh sách thư viện Python (ultralytics, opencv, mediapipe...)

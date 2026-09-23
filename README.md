@@ -1,12 +1,18 @@
 # Human Behavior Modules
 
-Install venv + dependencies (current version: Python 3.10.11)
+# Preparation
+## Install venv + dependencies + active venv (current version: Python 3.10.11)
 ```bash
     py -m venv .venv
+    .venv\Scripts\activate
     pip install -r requirements.txt
 ```
+## Download model (onnx)
+```bash
+    py models\download_model.py
+```
 
-Repo Structure
+# Repo Structure
 ```bash
     human-behavior/
     │

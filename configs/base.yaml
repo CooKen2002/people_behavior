@@ -1,0 +1,42 @@
+# ==========================================
+# GLOBAL BASE CONFIGURATION
+# ==========================================
+
+project:
+  name: "human-behavior-analysis"
+  version: "1.0.0"
+  # debug_mode: true
+
+# --- Cấu hình phần cứng ---
+hardware:
+  device: "cpu"          # Thiết bị chạy model: 'cuda' (GPU), 'cpu', hoặc 'mps' (Apple Silicon)
+  # device_id: 0            # ID của GPU nếu máy có nhiều card
+
+# --- Cấu hình Vào/Ra dữ liệu (Input/Output) ---
+io:
+  # source: 0               # Nguồn video: Đường dẫn file (.mp4), link RTSP camera, hoặc 0 (Webcam trực tiếp)
+  # output_dir: "data/processed/"
+  # save_video: true        # Có lưu video kết quả sau khi xử lý hay không
+  display_window: true    # Có bật cửa sổ OpenCV để hiển thị real-time không
+
+# --- Cấu hình thông số Video ---
+video:
+  target_fps: 30          # FPS mục tiêu khi xử lý
+  # resize_width: 1280      # Chuẩn hóa chiều rộng frame (giúp đồng bộ tốc độ xử lý)
+  # resize_height: 720      # Chuẩn hóa chiều cao frame
+
+# --- Cấu hình suy luận AI chung (Inference) ---
+inference:
+  confidence_threshold: 0.5  # Ngưỡng tin cậy tối thiểu để nhận diện đối tượng
+  iou_threshold: 0.45        # Ngưỡng Non-Maximum Suppression (NMS IOU)
+  input_size: 640            # Kích thước đầu vào của model YOLO (ví dụ: 640x640)
+
+# --- Cấu hình hiển thị và giao diện trực quan (Visualization) ---
+visualization:
+  bbox_thickness: 1          # Độ dày đường viền bounding box
+  text_scale: 0.6            # Kích thước chữ hiển thị trên màn hình
+  show_fps: true             # Hiển thị chỉ số FPS lên góc màn hình
+  colors:                    # Định dạng màu BGR cho OpenCV
+    green: [0, 255, 0]      # Xanh lá (Trạng thái bình thường)
+    red: [255, 0, 0]   # Cam (Cảnh báo nhẹ)
+    blue: [0, 0, 255]      # Đỏ (Phát hiện gian lận / vi phạm)
