@@ -1,0 +1,48 @@
+Giai đoạn 1 : Kiểm tra trang bị bảo hộ (PPE Detection)
+-Định vị người :
+-Cắt vùng xử lý : cắt (Crop) riêng vùng ảnh chứa person
+-Quét vùng cục bộ : Đưa vùng ảnh đã crop vào model YOLO chuyên dụng để tìm helmet, vest, uniform. Lúc này, tỷ lệ diện tích của mũ và áo chiếm phần lớn bức ảnh, giúp AI nhận diện chính xác kể cả các chi tiết nhỏ như dây quai mũ.
+-Cách xác định Bounding Box của vật thể : helmet , suit :
++ Vùng Đầu (Top 25% chiều cao): Bounding box của helmet bắt buộc phải có tâm nằm trong vùng này.
++ Vùng Thân (Từ 25% đến 75% chiều cao): Bounding box của vest hoặc uniform phải nằm trong vùng này.
++ Công thức logic chuẩn hóa: $Pass = (Helmet ∈ Vùng_Đầu) && (Vest ∈ Vùng_Thân or Uniform ∈ Vùng_Thân)
++ Nếu phát hiện helmet nhưng tọa độ của nó nằm ở vùng thân (đang cầm tay) -> Hệ thống lập tức đánh dấu FAIL và hiển thị cảnh báo: "Vui lòng đội mũ lên đầu, không cầm trên tay!".
+- Xử lý Thời gian chờ (7s Timeout) : Trong 7 giây này, trên màn hình phải hiện một thanh Progress Bar hoặc số giây đếm ngược to, rõ màu vàng/đỏ: "Bạn có 7 giây để chỉnh lại trang bị: [7]... [6]...".
+
+Giai đoạn 2 : Kiểm tra Vệ sinh (Rửa tay/Khử khuẩn)
+- Thiết kế Góc Máy :
++ Góc máy tối ưu: Góc từ trên xuống (Top-down View) hoặc Góc chéo từ trên xuống (45 độ), hướng thẳng vào khay chứa của máy xịt khuẩn
++ Vùng kiểm tra : Trên luồng video của camera này, ta sẽ vẽ một khung cố định ngay tại vị trí vòi xịt nước/gel sát khuẩn. AI chỉ kích hoạt đếm thời gian khi có tay đi vào vùng này.
+- Giải Pháp Kỹ Thuật :
++ Nhận diện và Kiểm tra cấu trúc bàn tay : Sử dụng mô hình YOLOv8-Pose (bản tracking khớp)
+* Tác dụng: Mô hình này sẽ tìm và định vị 21 điểm khớp trên bàn tay người.
++ Thuật toán Đo lường thời gian hành động :
+* Điều kiện 1 (Vị trí): Tọa độ các khớp ngón tay (từ MediaPipe) phải nằm hoàn toàn bên trong vùng cố định
+* Điều kiện 2 (Chuyển động): Khoảng cách dịch chuyển giữa các khớp tay qua từng frame hình để chứng minh hai tay đang có hành động xoa vào nhau (Rubbing), chứ không phải đặt im một chỗ.
+* Điều kiện 3 (Thời gian): Hai điều kiện trên phải duy trì liên tục trong tối thiểu 3 giây (hoặc số giây quy định để đảm bảo khử khuẩn sạch sẽ).
+-Các Biện Pháp Xử Lý Tình Huống Thực Tế :
++ Dính nước khử khuẩn lên ống kính: Máy xịt khuẩn tự động dạng phun sương có thể làm bám hạt nước lên ống kính camera phụ nếu đặt quá gần.
+* Giải pháp: Đặt camera ở phía trên cao hẳn (cách vòi xịt khoảng 40-50cm) nhìn xuống, và thiết kế một hộp mica nhỏ che phía trên camera để chắn bụi và sương mịn.
++ Đeo găng tay bảo hộ: Nhiều công trường yêu cầu công nhân đeo găng tay vải hoặc găng tay cao su trước khi vào. Nếu họ đeo găng tay, thuật toán nhận diện màu da người sẽ bị lỗi.
+* Giải pháp: Mô hình MediaPipe Hands phiên bản mới hoặc YOLOv8-Pose nhận diện dựa trên cấu trúc hình học (hình dáng bàn tay, các ngón tay tách rời) chứ không phụ thuộc vào màu da. Do đó, bạn cần kiểm thử để đảm bảo model của mình được train với cả ảnh bàn tay có đeo găng bảo hộ màu xanh/trắng/vàng.
++ Rửa tay "đối phó": Công nhân đưa tay vào, máy xịt nước ra nhưng họ chỉ để im tay hứng nước chứ không xoa tay đều.
+* Giải pháp: Nhờ vào việc đo khoảng cách dịch chuyển giữa các đốt ngón tay (như đã nói ở mục 2). Nếu biến thiên vị trí (Variance) của các khớp gần như bằng 0 -> Tay đang bất động -> Hệ thống không đếm ngược thời gian.
+
+Bài toán kiểm tra rửa tay và khử khuẩn
+- rửa tay : hand_washed
+- khử khuẩn = hand_washed + forearm_washed
+	-> quy trình:
+		Chuẩn bị (Pre-scrub)
+		Vệ sinh tay (Surgical hand wash)
+		Làm khô (Drying)
+		Mặc áo và đeo găng (Gowning and Gloving)
+		
+- góc cam: 
+	- Top-Down View
+	- Diagonal View
+	- Eye-level Side View
+
+exmaple:
+
+Surgical Scrub
+Surgical Hand Hygiene (Vệ sinh tay ngoại khoa).

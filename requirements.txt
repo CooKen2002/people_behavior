@@ -1,0 +1,25 @@
+numpy
+onnxruntime
+torch
+torchvision
+ultralytics
+# # --- Core Deep Learning & Computer Vision ---
+# torch
+# torchvision
+# ultralytics         # Cho YOLOv8 / YOLOv9 / YOLOv10 (Object Detection & Pose)
+# opencv-python       # Xử lý video, stream, và vẽ khung hình
+# mediapipe          # Hỗ trợ nhận diện khuôn mặt, tư thế (Pose), và tracking
+# # --- Data Processing & Scientific Computing ---
+# numpy
+# pandas
+# scipy
+# # --- Tracking & Analytics (Dùng cho đếm người, tracking nhân viên/học sinh) ---
+# filterpy            # Dùng cho Kalman Filter trong thuật toán tracking (DeepSORT/ByteTrack)
+# scikit-learn        # Tính toán metrics, phân cụm hành vi đơn giản
+# # --- Config & Logging ---
+# PyYAML                 # Đọc file cấu hình trong thư mục /configs
+# tqdm                # Thanh tiến trình (progress bar) khi chạy xử lý video batch
+# # --- Development & Testing (Tùy chọn) ---
+# pytest               # Viết unit test trong thư mục /tests
+# black               # Format code tự động
+# flake8               # Kiểm tra lỗi code style
