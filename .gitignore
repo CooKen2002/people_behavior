@@ -4,3 +4,7 @@ __pycache__/
 # model files
 *.onnx
 *.pt
+
+# images and videos
+*.jpg
+*.mp4

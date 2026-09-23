@@ -3,6 +3,7 @@ onnxruntime
 torch
 torchvision
 ultralytics
+opencv-python
 # # --- Core Deep Learning & Computer Vision ---
 # torch
 # torchvision

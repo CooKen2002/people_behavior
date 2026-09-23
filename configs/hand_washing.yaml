@@ -1,0 +1,10 @@
+MODEL_PATH: "models/yolov8n.onnx"
+# Ngưỡng confidence tối thiểu để tin vào keypoint wrist (tránh false positive khi bị che khuất)
+WRIST_CONF_THRESHOLD : 0.5
+# Ngưỡng khoảng cách 2 cổ tay (pixel) để coi là đang chụm tay lại
+WRIST_DIST_THRESHOLD : 100
+# Số frame gần nhất dùng để làm mượt (smoothing) trạng thái, tránh nhấp nháy
+SMOOTH_WINDOW : 15
+# Tỉ lệ frame "Washing" trong SMOOTH_WINDOW để chốt trạng thái hiển thị là Washing
+SMOOTH_RATIO : 0.6
+
