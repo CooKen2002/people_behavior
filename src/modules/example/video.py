@@ -13,114 +13,63 @@ from ...utils.yaml_utils import *
 base_config = load_yaml("configs/base.yaml")
 config = load_yaml("configs/example.yaml")
 
-model_path = config["model_path"]
-video_path = config["video_path"]
+session = ort.InferenceSession(config["model_path"], providers=base_config["providers"])
 
-conf_threshold = config["conf_threshold"]
-nms_threshold = config["nms_threshold"]
-input_shape = tuple(config["input_shape"])
+capCam = cv2.VideoCapture(config["video_path"])
 
-output_path = config["output_path"]
-output_file = f"{output_path}/example_result.mp4"
-
-session = ort.InferenceSession(model_path, providers=base_config["providers"])
-input_name = session.get_inputs()[0].name
-
-CLASSES = base_config["coco_object_classes"]
-
-capCam = cv2.VideoCapture(video_path)
 if not capCam.isOpened():
     print("Error: Can't open cam or video.")
     exit()
+
+window_name = "Example"
+cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
 
 # Lấy thông số của video gốc để cấu hình ghi file video đầu ra
 fps = capCam.get(cv2.CAP_PROP_FPS)
 frame_width = int(capCam.get(cv2.CAP_PROP_FRAME_WIDTH))
 frame_height = int(capCam.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
-# Khởi tạo VideoWriter để lưu video kết quả
-fourcc = cv2.VideoWriter_fourcc(*"mp4v")
-out = cv2.VideoWriter(output_file, fourcc, fps, (frame_width, frame_height))
-cv2.namedWindow("Example", cv2.WINDOW_NORMAL)
-
 while capCam.isOpened():
-    ret, frame = capCam.read()
+    ret, cam_frame = capCam.read()
     if not ret:
         print("CLOSE")
         break
 
-    # Đưa frame vào class Frame để xử lý
-    original = Frame(frame)
-    preprocess_frame = original.preprocess(input_shape)
+    frame = Frame(cam_frame, base_config["target_size"])
+    output = frame.infer(session)
+    indices, boxes, confidences, class_ids = frame.parse_object_detection(
+        output,
+        base_config["conf_threshold"],
+        base_config["nms_threshold"],
+        allow_classes=[0],
+        mode="resize",
+    )
 
-    outputs = session.run(None, {input_name: preprocess_frame})
-    output = outputs[0][0]  # Shape: [84, 8400]
-    output = output.T  # Transpose to [8400, 84]
-
-    boxes = []
-    confidences = []
-    class_ids = []
-
-    x_factor = original.width / input_shape[0]
-    y_factor = original.heigth / input_shape[1]
-
-    for row in output:
-        classes_scores = row[4:]
-        max_score = np.amax(classes_scores)
-
-        if max_score >= conf_threshold:
-            class_id = np.argmax(classes_scores)
-
-            cx, cy, w, h = row[0], row[1], row[2], row[3]
-
-            left = round((cx - w / 2) * x_factor)
-            top = round((cy - h / 2) * y_factor)
-            width = round(w * x_factor)
-            height = round(h * y_factor)
-
-            boxes.append([left, top, width, height])
-            confidences.append(float(max_score))
-            class_ids.append(class_id)
-
-    indices = cv2.dnn.NMSBoxes(boxes, confidences, conf_threshold, nms_threshold)
-
-    if len(indices) > 0:
-        for i in indices.flatten():
-            left, top, width, height = boxes[i]
-            confidence = confidences[i]
-            class_id = class_ids[i]
-            class_name = CLASSES[class_id]
-
-            # Vẽ bounding box lên original.frame
-            cv2.rectangle(
-                original.frame,
-                (left, top),
-                (left + width, top + height),
-                (0, 255, 0),
-                2,
-            )
-
-            label = f"Class {class_id}_{class_name}: {confidence:.2f}"
-            cv2.putText(
-                original.frame,
-                label,
-                (left, top - 10),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                base_config["visualization"]["text_scale"],
-                (0, 255, 0),
-                2,
-            )
-
-    # Ghi frame đã vẽ bounding box vào file video kết quả
-    out.write(original.frame)
-
+    for i in indices.flatten():
+        top, left, width, height = boxes[i]
+        cv2.rectangle(
+            cam_frame,
+            (top, left),
+            (top + width, left + height),
+            base_config["red"],
+            base_config["thickness"],
+        )
+        text = f"{class_ids[i]}.conf: {confidences[i]:2f}"
+        cv2.putText(
+            cam_frame,
+            text,
+            org=(top, left),
+            fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+            fontScale=base_config["text_scale"],
+            color=base_config["green"],
+            thickness=base_config["thickness"],
+        )
     # Hiển thị frame đã vẽ (dùng original.frame thay vì frame)
-    cv2.imshow("Example", original.frame)
+    cv2.imshow(window_name, cam_frame)
 
     if cv2.waitKey(1) & 0xFF == ord("q"):
         break
 
 # Giải phóng tài nguyên
 capCam.release()
-out.release()
 cv2.destroyAllWindows()

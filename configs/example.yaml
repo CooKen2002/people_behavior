@@ -1,8 +1,4 @@
 model_path: 'models/yolov8n.onnx'
 image_path: 'data/raw/example.jpg'
-video_path: 'data/raw/example.mp4'
+video_path: 'data/raw/1809.mp4'
 output_path: 'results'
-
-conf_threshold: 0.3
-nms_threshold: 0.2
-input_shape: [640, 640]

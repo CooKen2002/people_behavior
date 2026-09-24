@@ -1,0 +1,5 @@
+image_path: 'data/raw/work_station_frame'
+short_video_path: 'data/raw/work_station_5s.mp4'
+video_path: 'data/raw/work_station.mp4'
+
+calibration_secs: 10

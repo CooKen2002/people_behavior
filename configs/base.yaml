@@ -21,14 +21,14 @@ target_fps: 30 # FPS mục tiêu khi xử lý
 # resize_height: 720      # Chuẩn hóa chiều cao frame
 
 # Inference:
-confidence_threshold: 0.5 # Ngưỡng tin cậy tối thiểu để nhận diện đối tượng
-iou_threshold: 0.45 # Ngưỡng Non-Maximum Suppression (NMS IOU)
-input_size: [640, 640] # Kích thước đầu vào của model YOLO (ví dụ: 640x640)
+conf_threshold: 0.2 # Ngưỡng tin cậy tối thiểu để nhận diện đối tượng
+nms_threshold: 0.1 # Ngưỡng Non-Maximum Suppression (NMS IOU)
+target_size: [640, 640] # Kích thước đầu vào của model YOLO (ví dụ: 640x640)
 
 # Visualization:
-bbox_thickness: 1 # Độ dày đường viền bounding box
+thickness: 1 # Độ dày đường viền bounding box
 text_scale: 0.6 # Kích thước chữ hiển thị trên màn hình
-show_fps: true # Hiển thị chỉ số FPS lên góc màn hình
+show_fps: true # Hiển thị chỉ số FPS lên góc màn hình 
 # Định dạng màu BGR cho OpenCVcolors
 green: [0, 255, 0]
 red: [255, 0, 0]

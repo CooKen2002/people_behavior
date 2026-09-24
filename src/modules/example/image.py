@@ -16,29 +16,16 @@ config = load_yaml("configs/example.yaml")
 model_path = config["model_path"]
 image_path = config["image_path"]
 
-conf_threshold = config["conf_threshold"]
+conf_threshold = config["confidence_threshold"]
 nms_threshold = config["nms_threshold"]
 input_shape = tuple(config["input_shape"])
 
 output_path = config["output_path"]
 output_file = f"{output_path}/example_result.jpg"
 
-CLASSES = base_config["coco_object_classes"]
 
-# Load the ONNX model session
 session = ort.InferenceSession(model_path, providers=["CPUExecutionProvider"])
 input_name = session.get_inputs()[0].name
-
-# 2. Image Preprocessing
-# original_image = cv2.imread(image_path)
-# h_orig, w_orig = original_image.shape[:2]
-
-# # Resize and format for the model
-# input_image = cv2.resize(original_image, input_shape)
-# input_image = cv2.cvtColor(input_image, cv2.COLOR_BGR2RGB)
-# input_image = input_image.transpose(2, 0, 1)  # HWC to CHW
-# input_image = np.expand_dims(input_image, axis=0).astype(np.float32)
-# input_image /= 255.0  # Normalize to [0, 1]
 
 original_image = Frame(cv2.imread(image_path))
 preprocess_frame = original_image.preprocess(input_shape)

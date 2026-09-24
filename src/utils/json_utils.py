@@ -12,7 +12,7 @@ def load_json(json_path):
     return data
 
 
-def save_json(json_file, data):
+def save_json(json_path, data):
 
-    with open(f"./{json_file}", "w") as file:
+    with open(f"{json_path}", "w") as file:
         json.dump(data, file)

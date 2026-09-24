@@ -44,7 +44,7 @@ def get_handroi(original_frame: Frame):
     config = load_yaml('configs/hand_washing.yaml')
     model_path = config['obj_model_path']
     conf_threshold = base_config['confidence_threshold']
-    nms_threshold = base_config['iou_threshold']
+    nms_threshold = base_config['nms_threshold']
 
     session = ort.InferenceSession(model_path, providers=base_config['providers'])
     output = original_frame.infer(session, mode="resize")
