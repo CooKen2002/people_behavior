@@ -1,10 +1,19 @@
-MODEL_PATH: "models/yolov8n.onnx"
+obj_model_path: "models/yolov8n.onnx"
+pose_model_path: "models/yolov8n-pose.onnx"
 # Ngưỡng confidence tối thiểu để tin vào keypoint wrist (tránh false positive khi bị che khuất)
-WRIST_CONF_THRESHOLD : 0.5
+wrist_conf_threshold: 0.5
 # Ngưỡng khoảng cách 2 cổ tay (pixel) để coi là đang chụm tay lại
-WRIST_DIST_THRESHOLD : 100
+wrist_dist_threshold: 100
 # Số frame gần nhất dùng để làm mượt (smoothing) trạng thái, tránh nhấp nháy
-SMOOTH_WINDOW : 15
+smooth_window: 15
 # Tỉ lệ frame "Washing" trong SMOOTH_WINDOW để chốt trạng thái hiển thị là Washing
-SMOOTH_RATIO : 0.6
+smooth_ratio: 0.6
 
+image_path: 'data/raw/pov_ws_1st_frame.png'
+video_path: 'data/raw/pov_ws.mp4'
+
+conf_threshold: 0
+nms_threshold: 0
+input_shape: [640, 640]
+
+output_path: 'results'

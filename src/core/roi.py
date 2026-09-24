@@ -1,7 +1,6 @@
-class ROI():
-    def __init__(self, bbox, id):
+class ROI:
+    def __init__(self, bbox):
         self.bbox = bbox
-        self.id = id
 
     def bbox_xywh(self):
         return self.bbox

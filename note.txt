@@ -1,3 +1,7 @@
+### hand_washing issues
+Model yolov8n obj cant detect sink with 0 conf -> suggest another models
+
+
 human-behavior-analysis/
 │
 ├── .github/                  # CI/CD workflows, issue templates

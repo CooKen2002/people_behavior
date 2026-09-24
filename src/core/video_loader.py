@@ -2,8 +2,11 @@ import cv2
 import numpy as np
 from typing import Generator, Tuple, Optional, Union
 
+
 class VideoLoader:
-    def __init__(self, source: Union[str, int] = 0, target_size: Optional[Tuple[int, int]] = None):
+    def __init__(
+        self, source: Union[str, int] = 0, target_size: Optional[Tuple[int, int]] = None
+    ):
         """
         Khởi tạo video loader.
         :param source: Đường dẫn file video, link RTSP string, hoặc ID webcam (ví dụ: 0).
@@ -33,7 +36,7 @@ class VideoLoader:
             "fps": self.cap.get(cv2.CAP_PROP_FPS),
             "frame_count": int(self.cap.get(cv2.CAP_PROP_FRAME_COUNT)),
             "width": int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH)),
-            "height": int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+            "height": int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT)),
         }
 
     def stream_frames(self) -> Generator[np.ndarray, None, None]:
@@ -44,9 +47,9 @@ class VideoLoader:
         while self.cap.isOpened():
             ret, frame = self.cap.read()
             if not ret:
-                break # Hết video hoặc mất kết nối camera
-                
+                break  # Hết video hoặc mất kết nối camera
+
             if self.target_size:
                 frame = cv2.resize(frame, self.target_size)
-                
+
             yield frame

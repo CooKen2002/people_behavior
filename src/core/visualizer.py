@@ -1,9 +1,11 @@
 import cv2
-class DrawImage():
+
+
+class DrawImage:
     def __init__(self, cap, cam_id):
         self.wImage = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
         self.hImage = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
-        
+
         # ROI (vùng bồn rửa) đặt quanh xCenter/yCenter:
         # - Trục X: căn giữa (roiX1/roiX2 đối xứng qua xCenter)
         # - Trục Y: dịch xuống dưới (chỉ lùi lên 1/4 roi_h nhưng mở xuống dưới full roi_h)
@@ -17,7 +19,7 @@ class DrawImage():
 
     def draw_center(self, frame):
         cv2.circle(frame, (self.xCenter, self.yCenter), 10, (0, 0, 255), 5)
-    
+
     def draw_region(self, frame, x1, y1, x2, y2):
         cv2.rectangle(frame, (x1, y1), (x2, y2), (255, 255, 0), 1)
 
@@ -29,7 +31,10 @@ class DrawImage():
             cv2.putText(
                 frame,
                 str(text),
-                (self.roiX1, self.roiY1 - 10 if self.roiY1 - 10 > 10 else self.roiY1 + 20),
+                (
+                    self.roiX1,
+                    self.roiY1 - 10 if self.roiY1 - 10 > 10 else self.roiY1 + 20,
+                ),
                 cv2.FONT_HERSHEY_SIMPLEX,
                 0.5,
                 color,

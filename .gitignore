@@ -8,3 +8,5 @@ __pycache__/
 # images and videos
 *.jpg
 *.mp4
+*.webp
+*.png
