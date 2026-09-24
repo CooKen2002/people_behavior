@@ -5,5 +5,3 @@ class ROI:
     def bbox_xywh(self):
         return self.bbox
 
-    def load_json(self):
-        pass

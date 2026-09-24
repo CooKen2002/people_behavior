@@ -12,8 +12,4 @@ smooth_ratio: 0.6
 image_path: 'data/raw/pov_ws_1st_frame.png'
 video_path: 'data/raw/pov_ws.mp4'
 
-conf_threshold: 0
-nms_threshold: 0
-input_shape: [640, 640]
-
 output_path: 'results'

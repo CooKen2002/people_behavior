@@ -23,7 +23,7 @@ target_fps: 30 # FPS mục tiêu khi xử lý
 # Inference:
 confidence_threshold: 0.5 # Ngưỡng tin cậy tối thiểu để nhận diện đối tượng
 iou_threshold: 0.45 # Ngưỡng Non-Maximum Suppression (NMS IOU)
-input_size: 640 # Kích thước đầu vào của model YOLO (ví dụ: 640x640)
+input_size: [640, 640] # Kích thước đầu vào của model YOLO (ví dụ: 640x640)
 
 # Visualization:
 bbox_thickness: 1 # Độ dày đường viền bounding box

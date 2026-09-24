@@ -10,7 +10,6 @@ from ...core.roi import *
 from ...utils.json_utils import *
 from ...utils.yaml_utils import *
 
-
 from ...core.roi import ROI
 
 class HandRoi(ROI):
@@ -19,27 +18,37 @@ class HandRoi(ROI):
         self.confidence = confidence
 
     def is_washing(self, right_wrist, left_wrist) -> bool:
-        top, left, width, height = self.bbox
-        if (top < right_wrist.x < top + width and left < right_wrist.y < left + height) and (top < left_wrist.x < top + width and left < left_wrist.y < left + height):
-            return True
-        else:
-            return False
+        # bbox chuẩn: [left, top, width, height] tương ứng [x, y, w, h]
+        x, y, width, height = self.bbox
+        
+        # Hỗ trợ lấy tọa độ từ list/tuple [x, y, conf] hoặc object
+        def get_xy(wrist):
+            if hasattr(wrist, 'x') and hasattr(wrist, 'y'):
+                return wrist.x, wrist.y
+            return wrist[0], wrist[1]
+            
+        rx, ry = get_xy(right_wrist)
+        lx, ly = get_xy(left_wrist)
+        
+        # Kiểm tra xem cả cổ tay phải và cổ tay trái có nằm trong vùng ROI (bồn rửa) không
+        right_in = (x <= rx <= x + width) and (y <= ry <= y + height)
+        left_in = (x <= lx <= x + width) and (y <= ly <= y + height)
+        
+        return right_in and left_in
 
-def get_handroi(original_frame):
+def get_handroi(original_frame: Frame):
     rois = []
-    allow_classes = [71] # sink id
+    allow_classes = [71] # ID của bồn rửa (sink) trong COCO dataset
 
     base_config = load_yaml('configs/base.yaml') 
     config = load_yaml('configs/hand_washing.yaml')
     model_path = config['obj_model_path']
-    conf_threshold = config['conf_threshold']
-    nms_threshold = config['nms_threshold']
-    input_shape = tuple(config['input_shape'])
+    conf_threshold = base_config['confidence_threshold']
+    nms_threshold = base_config['iou_threshold']
 
-    frame = Frame(cv2.imread(original_frame), input_shape)
     session = ort.InferenceSession(model_path, providers=base_config['providers'])
-
-    indices, boxes, confidences, _ = frame.obj_inference(conf_threshold, nms_threshold, allow_classes, session, mode="resize")
+    output = original_frame.infer(session, mode="resize")
+    indices, boxes, confidences, _ = original_frame.parse_object_detection(output, conf_threshold, nms_threshold, allow_classes, mode="resize")
 
     if len(indices) > 0:
         for i in indices.flatten():
@@ -48,21 +57,15 @@ def get_handroi(original_frame):
     return rois
 
 def select_roi_points_from_image(image_input, window_name="Select ROI - Click 2 points (Top-Left, Bottom-Right)"):
-    """
-    Chọn vùng ROI thủ công từ một ảnh tĩnh (đường dẫn file hoặc numpy array).
-    Bấm 'q' hoặc ESC để hủy, tự động hoàn thành khi chọn đủ 2 điểm.
-    """
-    # Đọc ảnh nếu đầu vào là đường dẫn (str), ngược lại coi như đã là numpy.ndarray
     if isinstance(image_input, str):
         img = cv2.imread(image_input)
-        if img is None:
-            print(f"Error: Không thể đọc ảnh từ đường dẫn: {image_input}")
-            return None
     elif isinstance(image_input, np.ndarray):
         img = image_input.copy()
+    elif hasattr(image_input, 'frame'): # Trường hợp truyền vào đối tượng Frame
+        img = image_input.frame.copy()
     else:
         print("Error: Định dạng ảnh không hợp lệ!")
-        return None
+        return []
 
     points = []
 
@@ -75,34 +78,19 @@ def select_roi_points_from_image(image_input, window_name="Select ROI - Click 2 
 
     while True:
         display = img.copy()
-
-        # Vẽ các điểm đã click
         for p in points:
             cv2.circle(display, p, 5, (0, 0, 255), -1)
             
-        # Nếu chọn đủ 2 điểm, vẽ hình chữ nhật tạm thời
         if len(points) == 2:
             cv2.rectangle(display, points[0], points[1], (255, 0, 255), 2)
 
-        cv2.putText(
-            display,
-            "Click 2 diem (Top-Left, Bottom-Right) - q: Huy",
-            (10, 30),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.6,
-            (0, 255, 255),
-            2,
-        )
-        
+        cv2.putText(display, "Click 2 diem (Top-Left, Bottom-Right) - q: Huy", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 255), 2)
         cv2.imshow(window_name, display)
+        
         key = cv2.waitKey(1) & 0xFF
-
-        # Thoát nếu bấm 'q' hoặc phím ESC (27)
         if key == ord("q") or key == 27:
             points = []
             break
-
-        # Đã chọn đủ 2 điểm thì dừng vòng lặp sau một khoảng dừng ngắn
         if len(points) == 2:
             cv2.waitKey(400)
             break
@@ -110,14 +98,12 @@ def select_roi_points_from_image(image_input, window_name="Select ROI - Click 2 
     cv2.destroyWindow(window_name)
 
     if len(points) < 2:
-        return None
+        return []
 
-    # Tính toán tọa độ chuẩn (left, top, width, height)
     (x1, y1), (x2, y2) = points
     left = min(x1, x2)
     top = min(y1, y2)
     width = abs(x2 - x1)
     height = abs(y2 - y1)
-    rois = []
-    rois.append(HandRoi([left, top, width, height],1))
-    return rois
+    
+    return [HandRoi([left, top, width, height], 1.0)]
