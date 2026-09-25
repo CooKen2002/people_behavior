@@ -15,10 +15,7 @@ human-behavior-analysis/
 │   ├── hand_washing.yaml     # Tham số riêng cho bài toán rửa tay
 │   └── staff_absence.yaml    # Tham số riêng cho bài toán nhân viên vắng mặt
 │
-├── data/                     # Thư mục lưu dữ liệu (thường ignore qua .gitignore)
-│   ├── raw/                  # Video hoặc frame thô ban đầu
-│   ├── processed/            # Dữ liệu đã chuẩn hóa / cắt đoạn
-│   └── annotations/          # File nhãn (JSON, CSV, YOLO format txt)
+├── data/                     
 │
 ├── docs/                     # Tài liệu hướng dẫn, sơ đồ kiến trúc hệ thống
 │   └── architecture.md
