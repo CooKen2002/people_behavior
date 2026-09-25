@@ -1,5 +1,19 @@
 image_path: 'data/raw/work_station_frame'
 short_video_path: 'data/raw/work_station_5s.mp4'
 video_path: 'data/raw/work_station.mp4'
+rois_json_path: 'data/annotations/work_region.json'
 
 calibration_secs: 10
+
+track_max_disappeared: 30
+max_distance: 100
+missing_threshold: 0.3
+assign_threshold: 30
+away_threshold: 30
+
+obj_model_path: 'models/yolov8n.onnx'
+pose_model_path: 'models/yolov8n-pose.onnx'
+
+kpt_conf_threshold: 0.4
+
+target_indices: [5, 6, 11, 12, 13, 14]
