@@ -21,4 +21,4 @@ py models\download_model.py
 ```
 
 # Repo Structure
-Read at docs/architecture.md
+Read at [Architecture](https://github.com/CooKen2002/people_behavior/blob/main/docs/architecture.md)
