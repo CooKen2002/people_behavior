@@ -29,7 +29,6 @@ from typing import Optional
 
 from ...core.roi import ROI
 
-
 class WorkRegion:
     STATE_ABSENCE = "absence"
     STATE_UNASSIGNED = "unassigned"

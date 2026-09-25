@@ -1,5 +1,5 @@
 from ...core.roi import ROI
-from work_region import WorkRegion
+from .work_region import WorkRegion
 
 
 def make_region(**kwargs):
