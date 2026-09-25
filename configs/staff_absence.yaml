@@ -7,7 +7,7 @@ calibration_secs: 10
 
 track_max_disappeared: 30
 max_distance: 100
-missing_threshold: 0.3
+missing_threshold: 90
 assign_threshold: 30
 away_threshold: 30
 
