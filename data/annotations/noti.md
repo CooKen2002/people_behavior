@@ -1,0 +1,1 @@
+This folder for annotations files (JSON, CSV, YOLO format txt,...)
