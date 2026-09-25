@@ -12,3 +12,7 @@ __pycache__/
 *.png
 *.json
 *.webm
+
+# specific data
+*.zip
+ClassRoom.v1i.yolov8/
