@@ -1,0 +1,95 @@
+Theo dõi học sinh trong phòng thi
+
+Mô tả yêu cầu:
+# Chạy ngay tại thiết bị tính năng:
+- Tự động xác định phạm vi bàn học
+- Đánh số từng vị trí ngồi
+- Kiểm tra mỗi ô: có/không có học sinh
+- Mở rộng: giám sát hành vi gian lận
+- Đồng bộ dữ liệu
+# 1 web server có tính năng phát livestream realtime, và hiển thị kết quả.
+
+
+Phân tích modules
+- Detect Examinee Region (DER)
+- (Advance) Detect cheating
+    - Analys Examinee Behavior
+    - Detect Stranger
+
+- DER: 
+    - Tự động xác định phạm vi bàn học
+    - Đánh số từng vị trí ngồi
+    - Kiểm tra mỗi ô: có/không có học sinh
+
+- (Advance) Analys Examinee Behavior (Phân tích hành vi thí sinh)
+    - Leaving
+    - Leaning
+    - Using another devices
+    - Suspicious Behavior
+
+- (Advance) Detect Suspicious intervention (Phân tích)
+    - Analys Examiner Behavior
+    - Detect Extern intervention
+
+Quy chuẩn về mẫu phòng thi: 
+    phòng 24 thí sinh với 24 bàn ghế tách nhau (ưu tiên) hoặc 12 bàn (bàn dài) mỗi em ngồi một góc bàn
+    
+Pipelines: 
+    Pipelines 1:
+        -  Chạy ngay tại thiết bị tính năng:
+            - Tự động xác định phạm vi bàn học
+            - Đánh số từng vị trí ngồi
+            - Kiểm tra mỗi ô: có/không có học sinh
+        - Chạy 1 model với các Classes:
+            - bàn:
+                idx
+                state: có / không có học sinh
+                phạm vi/bbox region
+            - học sinh
+        - Luồng: sử dụng model detect 2 classes : phạm vi bàn học + Examinee (obj detect)
+            - Case1 : detect trước phạm vi bàn học + đánh số từng vị trí ngồi -> detect học sinh với phạm vi bàn học
+            - Case2 : detect đồng thời: đồng thời detect cả 2 classes với class bàn học detect tự đánh idx + state, với classes học sinh detect iou với bàn -> assign state của bản đó
+        
+        - Vấn đề: 
+            model trả kết quả liên quan đến bàn không quá tin cậy 
+                ->  Region of Interest Mapping cho phạm vi bàn học cố định thành các roi và chỉ cần so sánh với kết quả trả ra khi detect Examinee
+                    Performance: collect data và train riêng một model / Sử dụng model có sẵn
+
+    Pipelines 2:
+        -  Chạy ngay tại thiết bị tính năng:
+            - Tự động xác định phạm vi bàn học
+            - Đánh số từng vị trí ngồi
+            - Kiểm tra mỗi ô: có/không có học sinh
+            - Mở rộng: giám sát hành vi gian lận
+            - Đồng bộ dữ liệu
+
+        - Chạy 2 models:
+            - model obj hoặc segment cho phạm vi bàn học
+                - state: có / không 
+                - id đánh số
+                - phạm vi/bbox
+
+            - model Behavior của Examinee (Pose)
+                - leaving : keypoint rời khỏi vị trí
+                - Leaning : kiểm tra có đang quay sang nhìn (sử dụng pose so sánh các keypoint trên mặt với điều kiện hoặc sử dụng model behavior khác)
+                - Using another devices: obj detect
+                - Suspicious Behavior: hành vi gian lận khác như quay cóp, ...
+
+            - Detect Suspicious intervention
+                - Analys Examiner Behavior: giám thị trong phòng có lại gần thí sinh -> warning
+                - Detect Extern intervention: detect hỗ trợ từ bên ngoài như người ngoài vào phòng, người ngoài đưa đồ vật lạ,... -> warning
+
+        - Vấn đề: Compute Load
+            -> tối giản quy trình phạm vi bàn học như pipeline 1
+Đồng bộ dữ liệu: sử dụng 2 cam trở lên:
+    - Dữ liệu cần đồng bộ: toàn bộ dữ liệu liên quan đến phạm vi bàn học(id, state)
+    - Kiến trúc đề xuất cho Web Server:
+        Edge Device (Thiết bị tại phòng thi): 
+            Chạy luồng AI phân tích hình ảnh từ các camera 
+            -> Đóng gói dữ liệu dạng JSON (gồm room_id, desk_id, state, timestamp, warning_type) 
+            -> Server qua WebSocket hoặc MQTT để đảm bảo độ trễ thấp (realtime).
+        
+        Web Server: 
+            Nhận dữ liệu trạng thái để render sơ đồ phòng thi dạng lưới (Grid 24 ô) đổi màu sắc (Xanh: Bình thường, Đỏ: Cảnh báo gian lận/vắng mặt) 
+            + Hiển thị khung hình Stream trực tiếp qua WebRTC hoặc RTSP-to-Web (ví dụ dùng MediaMTX/go2rtc).
+
