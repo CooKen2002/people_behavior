@@ -2,10 +2,31 @@ import time
 from typing import List, Tuple, Dict, Any, Optional
 
 class Human:
-    def __init__(self):
-        pass
+    def __init__(self, bbox: List[float]):
+        self.bbox = bbox
 
+    def check_iou_with_roi(self, roi_bbox: List[float]) -> float:
+        """Tính toán Intersection over Union (IoU) giữa bounding box của con người và ROI."""
+        human_x1, human_y1, human_x2, human_y2 = self.bbox
+        roi_x1, roi_y1, roi_x2, roi_y2 = roi_bbox
 
+        # Tính toán diện tích giao nhau
+        inter_x1 = max(human_x1, roi_x1)
+        inter_y1 = max(human_y1, roi_y1)
+        inter_x2 = min(human_x2, roi_x2)
+        inter_y2 = min(human_y2, roi_y2)
+
+        inter_area = max(0, inter_x2 - inter_x1) * max(0, inter_y2 - inter_y1)
+
+        # Tính toán diện tích của cả hai bounding box
+        human_area = (human_x2 - human_x1) * (human_y2 - human_y1)
+        roi_area = (roi_x2 - roi_x1) * (roi_y2 - roi_y1)
+
+        # Tính toán IoU
+        union_area = human_area + roi_area - inter_area
+        iou = inter_area / union_area if union_area > 0 else 0.0
+
+        return iou
 class HumanBehavior(Human):
     def __init__(self, track_id: int, current_time: float = None):
         self.track_id = track_id                                                    # ID duy nhất từ thuật toán Tracking (ByteTrack/SORT)            

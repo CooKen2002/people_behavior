@@ -1,4 +1,4 @@
-image_path: "data/raw/work_station_frame"
+image_path: "data/raw/1809.jpg"
 short_video_path: "data/raw/1809_0s_5s.mp4"
 video_path: "data/raw/1809.mp4"
 rois_json_path: "data/annotations/work_region.json"
