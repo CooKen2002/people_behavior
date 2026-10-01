@@ -27,6 +27,7 @@ class Human:
         iou = inter_area / union_area if union_area > 0 else 0.0
 
         return iou
+    
 class HumanBehavior(Human):
     def __init__(self, track_id: int, current_time: float = None):
         self.track_id = track_id                                                    # ID duy nhất từ thuật toán Tracking (ByteTrack/SORT)            
