@@ -2,9 +2,9 @@ import cv2
 import numpy as np
 import onnxruntime as ort
 
-from ...core.frame import Frame
-from ...utils.json_utils import save_json
-from ...utils.yaml_utils import load_yaml
+from ....core.frame import Frame
+from ....utils.json_utils import save_json
+from ....utils.yaml_utils import load_yaml
 
 # ============== CẤU HÌNH ==============
 base_config = load_yaml('configs/base.yaml')

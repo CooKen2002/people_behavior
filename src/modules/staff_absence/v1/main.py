@@ -3,10 +3,10 @@ import json
 import numpy as np
 import onnxruntime as ort
 
-from ...core.frame import Frame
-from ...core.roi import ROI
-from ...utils.json_utils import *
-from ...utils.yaml_utils import *
+from ....core.frame import Frame
+from ....core.roi import ROI
+from ....utils.json_utils import *
+from ....utils.yaml_utils import *
 from .work_region import *
 
 # Ngưỡng "biến mất hẳn khỏi khung hình" trước khi region reset về unassigned.

@@ -27,7 +27,7 @@ buộc phải có ngay để refactor lần này chạy đúng.
 
 from typing import Optional
 
-from ...core.roi import ROI
+from ....core.roi import ROI
 
 class WorkRegion:
     STATE_ABSENCE = "absence"

@@ -1,4 +1,4 @@
-from ...core.roi import ROI
+from ....core.roi import ROI
 from .work_region import WorkRegion
 
 
