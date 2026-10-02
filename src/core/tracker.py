@@ -3,7 +3,7 @@ from typing import List
 from src.core.human import Human
 
 
-class GeneralTracker:
+class EntityTracker:
     def __init__(self, max_missed_frames: int = 30, iou_threshold: float = 0.3):
         """
         :param max_missed_frames: Số frame tối đa giữ lại track khi người đó biến mất (tránh mất ID khi model detect sót vài frame).
