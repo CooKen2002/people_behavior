@@ -4,6 +4,7 @@ torch
 torchvision
 ultralytics
 opencv-python
+shapely
 # # --- Core Deep Learning & Computer Vision ---
 # torch
 # torchvision
