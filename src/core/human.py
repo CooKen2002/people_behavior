@@ -2,15 +2,27 @@ import time
 from typing import List, Tuple, Dict, Any, Optional
 
 class Human:
-    def __init__(self, bbox: List[float]):
+    def __init__(self, track_id: int, bbox: List[float]):
+        self.track_id = track_id
+        self.bbox = bbox  # [x1, y1, x2, y2]
+        self.hits = 1     # Đếm tổng số frame tracking liên tục
+        self.time_since_update = 0  # Đếm số frame không thấy update (để xóa track cũ)
+
+    def update(self, bbox: List[float]):
+        """Cập nhật tọa độ bbox mới và reset thời gian vắng mặt"""
         self.bbox = bbox
+        self.hits += 1
+        self.time_since_update = 0
+
+    def mark_missed(self):
+        """Đánh dấu 1 frame không tìm thấy match với object này"""
+        self.time_since_update += 1
 
     def check_iou_with_roi(self, roi_bbox: List[float]) -> float:
         """Tính toán Intersection over Union (IoU) giữa bounding box của con người và ROI."""
         human_x1, human_y1, human_x2, human_y2 = self.bbox
         roi_x1, roi_y1, roi_x2, roi_y2 = roi_bbox
 
-        # Tính toán diện tích giao nhau
         inter_x1 = max(human_x1, roi_x1)
         inter_y1 = max(human_y1, roi_y1)
         inter_x2 = min(human_x2, roi_x2)
@@ -18,11 +30,9 @@ class Human:
 
         inter_area = max(0, inter_x2 - inter_x1) * max(0, inter_y2 - inter_y1)
 
-        # Tính toán diện tích của cả hai bounding box
         human_area = (human_x2 - human_x1) * (human_y2 - human_y1)
         roi_area = (roi_x2 - roi_x1) * (roi_y2 - roi_y1)
 
-        # Tính toán IoU
         union_area = human_area + roi_area - inter_area
         iou = inter_area / union_area if union_area > 0 else 0.0
 
