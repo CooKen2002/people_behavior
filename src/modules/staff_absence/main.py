@@ -20,9 +20,16 @@ def get_rois(mode, image_path, output_path):
             raise FileNotFoundError(f"Image not found at {image_path}")
 
         rois = select_multiple_rois(image, window_name="Select Multiple ROIs")
-        
+        data = [
+            {
+                "id": roi.id,
+                "polygon": roi.polygon,
+                "state": roi.state
+            } 
+            for roi in rois
+        ]
         # Sửa lại đúng thứ tự tham số: (đường dẫn, dữ liệu)
-        save_json(f'{output_path}/rois.json', rois)
+        save_json(f'{output_path}/rois.json', data)
         
         return rois
     else:
@@ -50,18 +57,34 @@ if __name__ == "__main__":
 
         frame = Frame(vid_frame)
         output = frame.infer(session, mode="resize")
-        frame.parse_pose_estimation(
-            output=output,
-            conf_threshold=base_config['conf_threshold'],
-            nms_threshold=base_config['nms_threshold'],
-            allow_classes=[0],  # Chỉ cho phép class "person"
-            mode="resize"
-        )
+        # frame.parse_pose_estimation(
+        #     output=output,
+        #     conf_threshold=base_config['conf_threshold'],
+        #     nms_threshold=base_config['nms_threshold'],
+        #     allow_classes=[0],  # Chỉ cho phép class "person"
+        #     mode="resize"
+        # )
 
         
 
         # Xử lý frame ở đây
         # Ví dụ: hiển thị frame
-        cv2.imshow('Frame', frame)
+        
+        print(tuple(base_config['blue']))
+        for roi in rois:
+            polygon = np.array(roi['polygon'], np.int32)
+            if roi['id'] != "None":
+                if roi['state'] == "missing":
+                    cv2.polylines(frame.frame, [polygon], isClosed=True, color=tuple(base_config['red']), thickness=2)
+                elif roi['state'] == "occupied":
+                    cv2.polylines(frame.frame, [polygon], isClosed=True, color=tuple(base_config['green']), thickness=2)
+                elif roi['state'] == "absence":
+                    cv2.polylines(frame.frame, [polygon], isClosed=True, color=tuple(base_config['gray']), thickness=2)
+                else:
+                    cv2.polylines(frame.frame, [polygon], isClosed=True, color=tuple(base_config['blue']), thickness=2)
+                # cv2.putText(frame.frame, roi['id'], tuple(polygon[0]), cv2.FONT_HERSHEY_SIMPLEX, 0.6, base_config['green'], 2)
+            else:
+                cv2.polylines(frame.frame, [polygon], isClosed=True, color=tuple(base_config['black']), thickness=2)
+        cv2.imshow('Frame', frame.frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break

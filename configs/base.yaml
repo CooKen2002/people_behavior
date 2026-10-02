@@ -31,8 +31,12 @@ text_scale: 0.6 # Kích thước chữ hiển thị trên màn hình
 show_fps: true # Hiển thị chỉ số FPS lên góc màn hình 
 # Định dạng màu BGR cho OpenCVcolors
 green: [0, 255, 0]
-red: [255, 0, 0]
-blue: [0, 0, 255] # Xanh lá (Trạng thái bình thường) # Cam (Cảnh báo nhẹ) # Đỏ (Phát hiện gian lận / vi phạm)
+red: [0, 0, 255]
+blue: [255,0, 0] # Xanh lá (Trạng thái bình thường) # Cam (Cảnh báo nhẹ) # Đỏ (Phát hiện gian lận / vi phạm)
+gray: [128, 128, 128] # Xám (Vùng không xác định / không có người)
+orange: [255, 165, 0] # Cam (Cảnh báo nhẹ)
+yellow: [255, 255, 0] # Vàng (Cảnh báo trung bình)
+black: [0, 0, 0] # Đen (Nền / Không có thông tin)
 
 # Onnx inference
 # CPU: CPUExecutionProvider, OpenVINOExecutionProvider, XNNPACK

@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 
+from ...core.roi import PolygonRoi
 
 def select_multiple_rois(frame, window_name="Select Multiple ROIs"):
     """
@@ -27,13 +28,14 @@ def select_multiple_rois(frame, window_name="Select Multiple ROIs"):
 
         # 1. Vẽ lại tất cả các vùng ROI đã lưu, hiển thị đúng roi_id thay vì số thứ tự
         for roi in all_rois:
-            pts_np = np.array(roi["polygon"], np.int32).reshape((-1, 1, 2))
+            pts_list = roi.polygon
+            pts_np = np.array(pts_list, np.int32).reshape((-1, 1, 2))
             cv2.polylines(display, [pts_np], isClosed=True, color=(0, 255, 0), thickness=2)
             M = cv2.moments(pts_np)
             if M["m00"] != 0:
                 cX = int(M["m10"] / M["m00"])
                 cY = int(M["m01"] / M["m00"])
-                cv2.putText(display, roi["roi_id"], (cX - 20, cY),
+                cv2.putText(display, roi.id, (cX - 20, cY),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 255), 2)
 
         # 2. Vẽ điểm/đường của vùng đang chọn dở dang
@@ -69,17 +71,18 @@ def select_multiple_rois(frame, window_name="Select Multiple ROIs"):
             break
 
         if len(current_points) == 4 and key == ord('c'):
-            default_id = f"ROI_{len(all_rois) + 1}"
             # input() sẽ tạm dừng vòng lặp cv2 chờ gõ terminal — đúng ý đồ,
             # vì lúc này cửa sổ đã hiển thị đủ 4 điểm, không cần thao tác chuột thêm.
+            default_id = "None" # f"ROI_{len(all_rois) + 1}"
             typed = input(f"Tên ROI (Enter để dùng mặc định '{default_id}'): ").strip()
-            roi_id = typed if typed else default_id
+            current_roi = PolygonRoi(id=typed if typed else default_id, state= "", polygon=current_points)
+            all_rois.append(current_roi)
 
-            all_rois.append({
-                "roi_id": roi_id,
-                "polygon": [list(p) for p in current_points],
-            })
-            print(f"Đã lưu ROI '{roi_id}'")
+            # all_rois.append({
+            #     "roi_id": roi_id,
+            #     "polygon": [list(p) for p in current_points],
+            # })
+            print(f"Đã lưu ROI {current_roi.id}")
             current_points = []
 
     cv2.destroyWindow(window_name)
@@ -94,6 +97,6 @@ if __name__ == "__main__":
         list_rois = select_multiple_rois(frame, window_name="Select Multiple ROIs")
         print(f"\nTổng số vùng ROI đã chọn: {len(list_rois)}")
         for roi in list_rois:
-            print(f"{roi['roi_id']}:\n{roi['polygon']}\n")
+            print(f"{roi.id}:\n{roi.polygon}\n")
     else:
         print(f"Không đọc được ảnh tại đường dẫn: {image_path}")
