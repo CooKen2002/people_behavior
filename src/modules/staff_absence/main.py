@@ -67,8 +67,11 @@ if __name__ == "__main__":
     cap = cv2.VideoCapture(base_config["raw_path"] + "/1809.mp4")
     tracker = EntityTracker(max_missed_frames=30, iou_threshold=0.3)
 
-    M_FRAMES = 10         # Số frame liên tiếp để chính thức gán nhân viên vào ROI
-    OVERLAP_THRESHOLD = 0.25  # Ngưỡng tỷ lệ giao thoa (25% diện tích ROI)
+    M_FRAMES = 10             # Số frame liên tiếp để chính thức gán nhân viên vào ROI
+    OVERLAP_THRESHOLD = 0.15  # Giảm nhẹ ngưỡng giao thoa (15%) để dễ nhận diện hơn với góc camera này
+
+    # Từ điển lưu bộ đếm frame xuyên suốt qua các vòng lặp: { (track_id, roi_id): count }
+    global_roi_counters = {}
 
     while cap.isOpened():
         ret, vid_frame = cap.read()
@@ -117,7 +120,7 @@ if __name__ == "__main__":
             human_behavior.time_since_update = human.time_since_update
             employees.append(human_behavior)
 
-        # 3. LOGIC GÁN NHÂN VIÊN VÀO ROIS DỰA TRÊN TỶ LỆ GIAO THOA (CHỈ CHẠY DUY NHẤT 1 LẦN)
+        # 3. LOGIC GÁN NHÂN VIÊN VÀO ROIS DỰA TRÊN TỶ LỆ GIAO THOA
         assigned_emp_ids_this_frame = set()
 
         for roi in rois:
@@ -129,7 +132,7 @@ if __name__ == "__main__":
             current_assigned_emp = roi.get("assigned_employee")
             matched_emp = None
 
-            # BƯỚC A: Kiểm tra nhân viên ĐÃ TỪNG ĐƯỢC GÁN xem còn giao thoa đủ lớn với ROI không
+            # BƯỚC A: Kiểm tra nhân viên ĐÃ TỪNG ĐƯỢC GÁN xem còn giao thoa với ROI không
             if current_assigned_emp is not None:
                 for emp in employees:
                     if emp.track_id == current_assigned_emp:
@@ -151,7 +154,7 @@ if __name__ == "__main__":
                     if emp.track_id in assigned_emp_ids_this_frame:
                         continue  # Nhân viên này đã bị chiếm ở ROI khác
                     
-                    # Kiểm tra xem nhân viên này có đang được gán cố định ở ROI khác chưa
+                    # Kiểm tra xem nhân viên này có đang được gán ở ROI khác chưa
                     already_has_roi = False
                     for other_roi in rois:
                         if other_roi.get("assigned_employee") == emp.track_id and other_roi["id"] != roi_id:
@@ -172,18 +175,21 @@ if __name__ == "__main__":
                                 max_overlap_ratio = overlap_ratio
                                 best_new_emp = emp
 
-                # Xử lý bộ đếm frame để tránh hiện tượng nhấp nháy gán nhầm
+                # Xử lý bộ đếm frame xuyên suốt qua global_roi_counters
                 if best_new_emp is not None:
-                    if roi_id not in best_new_emp.roi_frame_counters:
-                        best_new_emp.roi_frame_counters[roi_id] = 0
+                    counter_key = (best_new_emp.track_id, roi_id)
+                    if counter_key not in global_roi_counters:
+                        global_roi_counters[counter_key] = 0
                     
-                    best_new_emp.roi_frame_counters[roi_id] += 1
-                    if best_new_emp.roi_frame_counters[roi_id] >= M_FRAMES:
+                    global_roi_counters[counter_key] += 1
+                    if global_roi_counters[counter_key] >= M_FRAMES:
                         matched_emp = best_new_emp
                 else:
+                    # Giảm hoặc xóa bộ đếm nếu không còn giao thoa
                     for emp in employees:
-                        if roi_id in emp.roi_frame_counters:
-                            emp.roi_frame_counters[roi_id] = max(0, emp.roi_frame_counters[roi_id] - 1)
+                        counter_key = (emp.track_id, roi_id)
+                        if counter_key in global_roi_counters:
+                            global_roi_counters[counter_key] = max(0, global_roi_counters[counter_key] - 1)
 
             # BƯỚC C: Cập nhật trạng thái và gán ID nhân viên vào ROI
             if matched_emp is not None:
