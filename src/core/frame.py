@@ -60,7 +60,7 @@ class Frame:
             height = round(h / self.ratio)
         return left, top, width, height
 
-    def parse_object_detection(self, output: np.ndarray, conf_threshold: float, nms_threshold: float, allow_classes: List[int], mode: str):
+    def parse_object_detection(self, output: np.ndarray, conf_threshold: float, nms_threshold: float, allow_classes: List[int], mode: str = "resize"):
         boxes, confidences, class_ids = [], [], []
 
         for row in output:
@@ -81,7 +81,7 @@ class Frame:
         indices = cv2.dnn.NMSBoxes(boxes, confidences, conf_threshold, nms_threshold)
         return indices, boxes, confidences, class_ids
 
-    def parse_pose_estimation(self, output: np.ndarray, conf_threshold: float, nms_threshold: float, mode: str):
+    def parse_pose_estimation(self, output: np.ndarray, conf_threshold: float, nms_threshold: float, mode: str= "resize"):
         boxes, confidences, keypoints_list = [], [], []
 
         for row in output:

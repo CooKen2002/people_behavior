@@ -4,3 +4,7 @@ obj_model_path: "models/yolov8n.onnx"
 
 #MODE
 get_rois: "manual" # "manual" or "auto"
+
+#config
+bbox_overlap_roi: 0.5
+assign_frame: 5

@@ -2,12 +2,14 @@ import time
 from typing import List, Tuple, Dict, Any, Optional
 
 class Human:
-    def __init__(self, track_id: str, bbox: List[float]):
+    def __init__(self, track_id: str, bbox: List[float], confidence: float = 0.3):
         self.track_id = track_id
+        self.confidence = confidence
         self.bbox = bbox if bbox is not None else []    # [x1, y1, x2, y2]
         self.hits = 1                                   # Đếm tổng số frame tracking liên tục
         self.time_since_update = 0                         # Đếm số frame không thấy update (để xóa track cũ)
-
+        # Lưu số frame đếm được cho
+        self.roi_frame_counters = {}
     def update(self, bbox: List[float]):
         """Cập nhật tọa độ bbox mới và reset thời gian vắng mặt"""
         self.bbox = bbox
